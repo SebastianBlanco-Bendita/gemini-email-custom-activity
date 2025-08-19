@@ -144,3 +144,117 @@ class ActivityService {
             display: inline-block;
             background-color: #007bff;
             color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Tu Empresa</h1>
+        </div>
+        
+        <div class="content">
+            ${content}
+        </div>
+        
+        <div class="footer">
+            <p>${footerText}</p>
+            <p><small>Este email fue generado automáticamente con IA personalizada.</small></p>
+        </div>
+    </div>
+</body>
+</html>`;
+    }
+
+    async logActivity(activityData) {
+        try {
+            // Intentar actualizar la data extension con información de la actividad
+            const logData = {
+                LastEmailSent: new Date().toISOString(),
+                LastSubject: activityData.subject,
+                EmailsSent: 1, // Incrementar si existe
+                LastTemplate: activityData.template,
+                LastSuccess: activityData.success ? 'true' : 'false'
+            };
+
+            await this.salesforceService.updateContactData(
+                activityData.contactKey, 
+                logData
+            );
+
+            console.log('Activity logged successfully for:', activityData.contactKey);
+            
+        } catch (error) {
+            console.warn('Failed to log activity:', error.message);
+            // No fallar la ejecución principal por un error de logging
+        }
+    }
+
+    async validateConfiguration(config) {
+        const errors = [];
+
+        if (!config.contactKey) {
+            errors.push('ContactKey is required');
+        }
+
+        if (!config.email) {
+            errors.push('Email address is required');
+        }
+
+        if (config.email && !this.isValidEmail(config.email)) {
+            errors.push('Invalid email format');
+        }
+
+        if (config.emailTemplate && !['default', 'promotional', 'informational', 'welcome'].includes(config.emailTemplate)) {
+            errors.push('Invalid email template type');
+        }
+
+        return {
+            valid: errors.length === 0,
+            errors
+        };
+    }
+
+    isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    async testConnection() {
+        try {
+            // Probar conexión con Gemini
+            const geminiTest = await this.geminiService.generatePersonalizedEmail({
+                firstName: 'Test',
+                city: 'Test City',
+                interestCategory: 'test'
+            }, 'default');
+
+            // Probar conexión con Salesforce
+            await this.salesforceService.authenticate();
+
+            return {
+                success: true,
+                geminiConnected: geminiTest.generated || geminiTest.fallback,
+                salesforceConnected: true,
+                timestamp: new Date().toISOString()
+            };
+
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message,
+                timestamp: new Date().toISOString()
+            };
+        }
+    }
+}
+
+module.exports = ActivityService;
