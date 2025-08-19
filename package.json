@@ -19,7 +19,7 @@
     "cors": "^2.8.5",
     "body-parser": "^1.20.2",
     "node-fetch": "^2.7.0",
-    "fuel-rest": "^2.4.3",
+    "fuel-rest": "^3.1.0",
     "@google/generative-ai": "^0.2.1",
     "dotenv": "^16.3.1",
     "helmet": "^7.1.0",
