@@ -28,7 +28,7 @@
                 }
             ],
             "outArguments": [],
-            "url": "https://your-railway-domain.up.railway.app/execute",
+            "url": "https://gemini-email-custom-activity.onrender.com/execute",
             "verb": "POST",
             "body": "",
             "header": "",
@@ -40,22 +40,22 @@
     "configurationArguments": {
         "applicationExtensionKey": "gemini-email-activity",
         "save": {
-            "url": "https://your-railway-domain.up.railway.app/save",
+            "url": "https://gemini-email-custom-activity.onrender.com/save",
             "verb": "POST",
             "useJwt": true
         },
         "publish": {
-            "url": "https://your-railway-domain.up.railway.app/publish",
+            "url": "https://gemini-email-custom-activity.onrender.com/publish",
             "verb": "POST",
             "useJwt": true
         },
         "validate": {
-            "url": "https://your-railway-domain.up.railway.app/validate",
+            "url": "https://gemini-email-custom-activity.onrender.com/validate",
             "verb": "POST",
             "useJwt": true
         },
         "stop": {
-            "url": "https://your-railway-domain.up.railway.app/stop",
+            "url": "https://gemini-email-custom-activity.onrender.com/stop",
             "verb": "POST",
             "useJwt": true
         }
