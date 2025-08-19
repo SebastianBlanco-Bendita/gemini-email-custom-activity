@@ -1,1 +1,125 @@
-
+{
+    "workflowApiVersion": "1.1",
+    "metaData": {
+        "icon": "images/icon.png",
+        "category": "message",
+        "isConfigured": true
+    },
+    "type": "REST",
+    "lang": {
+        "es-ES": {
+            "name": "Gemini Email Personalizado",
+            "description": "Envía emails personalizados usando IA de Gemini Pro basado en datos de contacto"
+        },
+        "en-US": {
+            "name": "Gemini Personalized Email",
+            "description": "Send personalized emails using Gemini Pro AI based on contact data"
+        }
+    },
+    "arguments": {
+        "execute": {
+            "inArguments": [
+                {
+                    "ContactKey": "{{Contact.Key}}",
+                    "Mail": "{{InteractionDefaults.Email}}",
+                    "FirstName": "{{Contact.Attribute.TestCustomActivity.FirstName}}",
+                    "City": "{{Contact.Attribute.TestCustomActivity.City}}",
+                    "InterestCategory": "{{Contact.Attribute.TestCustomActivity.InterestCategory}}"
+                }
+            ],
+            "outArguments": [],
+            "url": "https://your-railway-domain.up.railway.app/execute",
+            "verb": "POST",
+            "body": "",
+            "header": "",
+            "format": "json",
+            "useJwt": true,
+            "timeout": 100000
+        }
+    },
+    "configurationArguments": {
+        "applicationExtensionKey": "gemini-email-activity",
+        "save": {
+            "url": "https://your-railway-domain.up.railway.app/save",
+            "verb": "POST",
+            "useJwt": true
+        },
+        "publish": {
+            "url": "https://your-railway-domain.up.railway.app/publish",
+            "verb": "POST",
+            "useJwt": true
+        },
+        "validate": {
+            "url": "https://your-railway-domain.up.railway.app/validate",
+            "verb": "POST",
+            "useJwt": true
+        },
+        "stop": {
+            "url": "https://your-railway-domain.up.railway.app/stop",
+            "verb": "POST",
+            "useJwt": true
+        }
+    },
+    "wizardSteps": [
+        {
+            "label": "Configuración de Template",
+            "key": "step1"
+        },
+        {
+            "label": "Configuración de Envío",
+            "key": "step2"
+        }
+    ],
+    "userInterfaces": {
+        "configModal": {
+            "height": 600,
+            "width": 800,
+            "fullscreen": false
+        }
+    },
+    "schema": {
+        "arguments": {
+            "execute": {
+                "inArguments": [
+                    {
+                        "ContactKey": {
+                            "dataType": "Text",
+                            "isNullable": false,
+                            "direction": "in"
+                        },
+                        "Mail": {
+                            "dataType": "EmailAddress", 
+                            "isNullable": false,
+                            "direction": "in"
+                        },
+                        "FirstName": {
+                            "dataType": "Text",
+                            "isNullable": true,
+                            "direction": "in"
+                        },
+                        "City": {
+                            "dataType": "Text",
+                            "isNullable": true,
+                            "direction": "in"
+                        },
+                        "InterestCategory": {
+                            "dataType": "Text",
+                            "isNullable": true,
+                            "direction": "in"
+                        },
+                        "emailTemplate": {
+                            "dataType": "Text",
+                            "isNullable": true,
+                            "direction": "in"
+                        },
+                        "subject": {
+                            "dataType": "Text",
+                            "isNullable": true,
+                            "direction": "in"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
