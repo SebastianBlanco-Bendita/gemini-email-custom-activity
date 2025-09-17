@@ -4,15 +4,15 @@
   "description": "Salesforce Marketing Cloud Custom Activity with Gemini Pro AI",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js"
+    "start": "node app.js", 
+    "dev": "nodemon app.js" 
   },
-  "keywords": [
-    "salesforce",
-    "marketing-cloud",
-    "custom-activity",
-    "gemini",
-    "ai"
+  "keywords": [ 
+    "salesforce", 
+    "marketing-cloud", 
+    "custom-activity", 
+    "gemini", 
+    "ai" 
   ],
   "dependencies": {
     "express": "^4.18.2",
