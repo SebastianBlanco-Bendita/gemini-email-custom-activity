@@ -1,19 +1,16 @@
 {
   "name": "gemini-email-custom-activity",
   "version": "1.0.0",
-  "description": "Salesforce Marketing Cloud Custom Activity with Gemini Pro AI",
-  "main": "app.js",
   "scripts": {
-    "start": "node app.js", 
-    "dev": "nodemon app.js" 
+    "dev": "nodemon app.js",
+    "start": "node app.js"
   },
-  "keywords": [ 
-    "salesforce", 
-    "marketing-cloud", 
-    "custom-activity", 
-    "gemini", 
-    "ai" 
-  ],
+  "main": "app.js",
+  "description": "Salesforce Marketing Cloud Custom Activity with Gemini Pro AI",
+  "keywords": ["salesforce", "marketing-cloud", "custom-activity", "gemini", "ai"],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
@@ -27,8 +24,5 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
-  },
-  "engines": {
-    "node": ">=18.0.0"
   }
 }
