@@ -1,36 +1,22 @@
+'use strict';
+
 document.addEventListener('DOMContentLoaded', () => {
     // ========================
     // Inicialización
     // ========================
     const connection = new Postmonger.Session();
     let payload = {};
+    let initialInArguments = {};
+    let currentStep = 1;
 
     // Elementos del DOM
-    const steps = document.querySelectorAll('.step-content');
-    const indicators = document.querySelectorAll('.step');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const saveBtn = document.getElementById('saveBtn');
+    const steps = {
+        1: document.getElementById('step1'),
+        2: document.getElementById('step2')
+    };
     const emailTemplateSelect = document.getElementById('emailTemplate');
     const customSubjectInput = document.getElementById('customSubject');
     const templatePreview = document.getElementById('templatePreview');
-
-    // ========================
-    // Navegación de pasos
-    // ========================
-    function showStep(stepIndex) {
-        steps.forEach((step, index) => {
-            step.classList.toggle('active', index === stepIndex - 1);
-        });
-
-        indicators.forEach((indicator, index) => {
-            indicator.classList.toggle('active', index === stepIndex - 1);
-        });
-
-        prevBtn.classList.toggle('hidden', stepIndex === 1);
-        nextBtn.classList.toggle('hidden', stepIndex === steps.length);
-        saveBtn.classList.toggle('hidden', stepIndex !== steps.length);
-    }
 
     // ========================
     // Vista previa de plantilla
@@ -42,70 +28,91 @@ document.addEventListener('DOMContentLoaded', () => {
             informational: '<strong>Email Informativo:</strong> Comparte conocimiento de valor.',
             welcome: '<strong>Email de Bienvenida:</strong> Saludo cálido para nuevos contactos.'
         };
-
         templatePreview.innerHTML = descriptions[emailTemplateSelect.value] || '';
     }
 
     // ========================
+    // Navegación y UI
+    // ========================
+    function showStep(step, direction) {
+        currentStep = step;
+        if (direction) {
+            connection.trigger('updateButton', {
+                button: 'next',
+                visible: step < Object.keys(steps).length,
+                enabled: true
+            });
+            connection.trigger('updateButton', {
+                button: 'back',
+                visible: step > 1,
+                enabled: true
+            });
+        }
+        
+        // Muestra el paso actual en la UI de SFMC
+        connection.trigger('gotoStep', step);
+    }
+    
+    // ========================
     // Guardar configuración
     // ========================
-    function saveConfiguration() {
+    function save() {
         const emailTemplate = emailTemplateSelect.value;
-        const subject = customSubjectInput.value || null;
+        const subject = customSubjectInput.value.trim();
 
-        // Asegura que la estructura del payload exista
-        payload.arguments = payload.arguments || {};
-        payload.arguments.execute = payload.arguments.execute || {};
+        // Combina los argumentos iniciales con los valores de la UI
+        const finalInArguments = { ...initialInArguments };
+        finalInArguments.emailTemplate = emailTemplate;
+        if (subject) {
+            finalInArguments.subject = subject;
+        }
 
-        payload.arguments.execute.inArguments = [{
-            ContactKey: "{{Contact.Key}}",
-            Mail: "{{InteractionDefaults.Email}}",
-            FirstName: "{{Contact.Attribute.TestCustomActivity.FirstName}}",
-            City: "{{Contact.Attribute.TestCustomActivity.City}}",
-            InterestCategory: "{{Contact.Attribute.TestCustomActivity.InterestCategory}}",
-            emailTemplate,
-            subject
-        }];
-
-        payload.metaData = payload.metaData || {};
+        // Estructura el payload como espera SFMC
+        payload.arguments.execute.inArguments = [finalInArguments];
         payload.metaData.isConfigured = true;
 
-        console.log('Guardando configuración:', JSON.stringify(payload, null, 2));
+        console.log('Guardando payload:', JSON.stringify(payload, null, 2));
         connection.trigger('updateActivity', payload);
     }
 
     // ========================
-    // Inicializar datos si ya existen
+    // Inicializar la actividad
     // ========================
-    function initializeActivity(data) {
-        if (data) payload = data;
-
-        const args = payload.arguments?.execute?.inArguments?.[0] || {};
-        emailTemplateSelect.value = args.emailTemplate || 'default';
-        customSubjectInput.value = args.subject || '';
-
+    function initialize(data) {
+        if (data) {
+            payload = data;
+        }
+        
+        const inArguments = payload.arguments?.execute?.inArguments?.[0] || {};
+        
+        // Guarda los argumentos que vienen del Journey por separado
+        Object.keys(inArguments).forEach(key => {
+            if (!['emailTemplate', 'subject'].includes(key)) {
+                initialInArguments[key] = inArguments[key];
+            }
+        });
+        
+        // Carga la configuración guardada en la UI
+        emailTemplateSelect.value = inArguments.emailTemplate || 'default';
+        customSubjectInput.value = inArguments.subject || '';
+        
         updateTemplatePreview();
-        showStep(1);
+        showStep(1); // Inicia en el primer paso
     }
-
+    
     // ========================
     // Eventos de Postmonger
     // ========================
-    connection.on('initActivity', initializeActivity);
-    connection.on('clickedNext', () => showStep(2));
-    connection.on('clickedBack', () => showStep(1));
-
+    connection.on('initActivity', initialize);
+    connection.on('clickedNext', save); // Guardar al hacer clic en Siguiente o Hecho
+    connection.on('gotoStep', showStep);
+    
     // ========================
     // Eventos del DOM
     // ========================
-    nextBtn.addEventListener('click', () => showStep(2));
-    prevBtn.addEventListener('click', () => showStep(1));
-    saveBtn.addEventListener('click', saveConfiguration);
     emailTemplateSelect.addEventListener('change', updateTemplatePreview);
-
-    // ========================
-    // Activar UI
-    // ========================
+    
+    // Notifica a SFMC que la UI está lista
     connection.trigger('ready');
     updateTemplatePreview();
 });
